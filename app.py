@@ -19,53 +19,40 @@ def display_champion_images(champions, champion_data):
     row = ""
     for i, champion in enumerate(champions):
         image_url = f"http://ddragon.leagueoflegends.com/cdn/13.13.1/img/champion/{champion_data[champion]['image']['full']}"
-        row += f'<img src="{image_url}" alt="{champion}" width="120" height="120" style="margin: 5px"/>'
-        if (i + 1) % 5 == 0:
-            st.markdown(row, unsafe_allow_html=True)
-            row = ""
+        row += f'<img src="{image_url}" alt="{champion}" width="60" height="60" style="margin: 3px"/>'
+    # Display all the images
     if row != "":
         st.markdown(row, unsafe_allow_html=True)
 
-def main():
-    st.title("League of Legends Champion Recommendation")
-    
-    # Summoner Name
-    summoner_name = st.text_input("Enter Summoner Name:")
-    
-    # Regions Dropdown
-    regions = region_list.keys()  # Add more regions as needed
-    selected_region = st.selectbox("Select Region:", regions)
-    
-    # Fetch champion data
-    # data = requests.get("http://ddragon.leagueoflegends.com/cdn/13.13.1/data/en_US/champion.json")
-    # data = json.loads(data.text)
-    # champion_data = data["data"]
-    # Opening JSON file
-    f = open('champion.json')
-    
-    # returns JSON object as 
-    # a dictionary
+def summoner_info():
+    st.subheader("Summary")
 
+def champion_draft():
+    st.subheader("Champion Draft Pick")
+    # Fetch champion data
+    # Opening JSON file
     with open('champion.json', 'r', encoding='utf-8') as file:
         data = json.load(file)
     
-    # Access the data from the JSON
+    # Access the data from the JSON file
     champion_data = data["data"]
 
     # Retrieve champion name list
     champion_list = list(champion_data.keys())
 
-
     # Banned Champions
-    banned_champions_team = st.multiselect("Select Banned Champions for Your Team:", champion_list)
-    banned_champions_enemy = st.multiselect("Select Banned Champions for Enemy Team:", champion_list)
-    
-    # Display the banned champion images
-    st.subheader("Banned Champions - Your Team")
-    display_champion_images(banned_champions_team, champion_data)
+    banned_champions_team = st.multiselect("Select Banned Champions for Your Team:", champion_list, max_selections=5)
+    banned_champions_enemy = st.multiselect("Select Banned Champions for Enemy Team:", champion_list, max_selections=5)
 
-    st.subheader("Banned Champions - Enemy Team")
-    display_champion_images(banned_champions_enemy, champion_data)
+    # Display the banned champions
+    st.subheader("Banned Champions")
+    col1, col2 = st.columns([3, 3])
+    with col1:
+        st.caption("Your Team")
+        display_champion_images(banned_champions_team, champion_data)
+    with col2:
+        st.caption("Enemy Team")
+        display_champion_images(banned_champions_enemy, champion_data)
     
 
     # Perform Analysis and Display Recommendations
@@ -81,7 +68,24 @@ def main():
         st.write("- Champion 3")
         # Add more recommendations as needed
 
- 
+
+def main():
+    st.title("League of Legends Champion Recommendation")
+    
+    # Summoner Name
+    summoner_name = st.text_input("Enter Summoner Name:")
+    
+    # Regions Dropdown
+    regions = region_list.keys()  # Add more regions as needed
+    selected_region = st.selectbox("Select Region:", regions)
+    
+    if summoner_name:
+        tab1, tab2= st.tabs(["Summary", "Champion Draft"])     
+        with tab1:
+            summoner_info()
+
+        with tab2:
+            champion_draft()
 
 
 if __name__ == "__main__":
